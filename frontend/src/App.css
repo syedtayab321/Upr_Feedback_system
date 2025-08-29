@@ -1,0 +1,24 @@
+@import "tailwindcss";
+
+* {
+  font-family: "Poppins";
+}
+
+/* transparent scrollbar class */
+.scrollbar-transparent::-webkit-scrollbar {
+  width: 8px; /* adjust width */
+}
+
+.scrollbar-transparent::-webkit-scrollbar-thumb {
+  background-color: transparent; /* transparent thumb */
+}
+
+.scrollbar-transparent::-webkit-scrollbar-track {
+  background: transparent; /* transparent track */
+}
+
+/* Firefox */
+.scrollbar-transparent {
+  scrollbar-width: thin;
+  scrollbar-color: transparent transparent;
+}
