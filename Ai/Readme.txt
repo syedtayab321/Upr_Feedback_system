@@ -1,1 +1,2 @@
-uvicorn main:app --reload --port 8000  For ai app run
+First step :
+    create a virtual enviromen
