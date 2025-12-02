@@ -15,13 +15,4 @@ const db = {
   FeedbackResponse,
 };
 
-// Sync all models
-db.sequelize.sync({ force: false })
-  .then(() => {
-    console.log('Database synced successfully');
-  })
-  .catch((error) => {
-    console.error('Error syncing database:', error);
-  });
-
 export default db;

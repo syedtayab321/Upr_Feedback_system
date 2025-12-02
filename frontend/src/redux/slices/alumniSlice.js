@@ -1,84 +1,68 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import * as alumniApi from './../../apis/endpoints/alumniEndpoint';
 
-// Async Thunks
 export const submitFeedback = createAsyncThunk(
   'alumni/submitFeedback',
-  async (feedbackData, { rejectWithValue }) => {
-    try {
-      return await alumniApi.submitFeedbackApi(feedbackData);
-    } catch (error) {
-      return rejectWithValue(error.message);
-    }
+  async (feedbackData) => {
+    return await alumniApi.submitFeedbackApi(feedbackData);
   }
 );
 
 export const fetchFeedbacks = createAsyncThunk(
   'alumni/fetchFeedbacks',
-  async (_, { rejectWithValue }) => {
-    try {
-      return await alumniApi.fetchFeedbacksApi();
-    } catch (error) {
-      return rejectWithValue(error.message);
-    }
+  async () => {
+    return await alumniApi.fetchFeedbacksApi();
   }
 );
 
-// Additional alumni thunks
 export const fetchAlumniProfile = createAsyncThunk(
   'alumni/fetchAlumniProfile',
-  async (_, { rejectWithValue }) => {
-    try {
-      return await alumniApi.fetchAlumniProfileApi();
-    } catch (error) {
-      return rejectWithValue(error.message);
-    }
+  async () => {
+    return await alumniApi.fetchAlumniProfileApi();
   }
 );
 
 export const updateAlumniProfile = createAsyncThunk(
   'alumni/updateAlumniProfile',
-  async (profileData, { rejectWithValue }) => {
-    try {
-      return await alumniApi.updateAlumniProfileApi(profileData);
-    } catch (error) {
-      return rejectWithValue(error.message);
-    }
+  async (profileData) => {
+    return await alumniApi.updateAlumniProfileApi(profileData);
   }
 );
 
 export const fetchAlumniEvents = createAsyncThunk(
   'alumni/fetchAlumniEvents',
-  async (_, { rejectWithValue }) => {
-    try {
-      return await alumniApi.fetchAlumniEventsApi();
-    } catch (error) {
-      return rejectWithValue(error.message);
-    }
+  async () => {
+    return await alumniApi.fetchAlumniEventsApi();
   }
 );
 
 export const registerForEvent = createAsyncThunk(
   'alumni/registerForEvent',
-  async (eventId, { rejectWithValue }) => {
-    try {
-      return await alumniApi.registerForEventApi(eventId);
-    } catch (error) {
-      return rejectWithValue(error.message);
-    }
+  async (eventId) => {
+    return await alumniApi.registerForEventApi(eventId);
   }
 );
 
-// Helper functions for state management
-const handlePending = (state) => {
-  state.loading = true;
-  state.error = null;
-};
+export const fetchChatUsers = createAsyncThunk(
+  'alumni/fetchChatUsers',
+  async () => {
+    return await alumniApi.fetchChatUsersApi();
+  }
+);
 
-const handleRejected = (state, action) => {
-  state.loading = false;
-  state.error = action.payload;
-};
+export const fetchChats = createAsyncThunk(
+  'alumni/fetchChats',
+  async () => {
+    return await alumniApi.fetchChatsApi();
+  }
+);
+
+export const sendMessage = createAsyncThunk(
+  'alumni/sendMessage',
+  async (messageData) => {
+    return await alumniApi.sendMessageApi(messageData);
+  }
+);
 
 const alumniSlice = createSlice({
   name: 'alumni',
@@ -86,6 +70,8 @@ const alumniSlice = createSlice({
     feedbacks: [],
     profile: null,
     events: [],
+    chatUsers: [],
+    chats: [],
     loading: false,
     error: null,
     operations: {
@@ -101,6 +87,10 @@ const alumniSlice = createSlice({
         loading: false,
         error: null,
       },
+      chat: {
+        loading: false,
+        error: null,
+      },
     },
   },
   reducers: {
@@ -109,11 +99,14 @@ const alumniSlice = createSlice({
       state.operations.feedback.error = null;
       state.operations.profile.error = null;
       state.operations.events.error = null;
+      state.operations.chat.error = null;
     },
     resetAlumniState: (state) => {
       state.feedbacks = [];
       state.profile = null;
       state.events = [];
+      state.chatUsers = [];
+      state.chats = [];
       state.loading = false;
       state.error = null;
       state.operations.feedback.loading = false;
@@ -122,11 +115,15 @@ const alumniSlice = createSlice({
       state.operations.profile.error = null;
       state.operations.events.loading = false;
       state.operations.events.error = null;
+      state.operations.chat.loading = false;
+      state.operations.chat.error = null;
+    },
+    receiveMessage: (state, action) => {
+      state.chats.push(action.payload);
     },
   },
   extraReducers: (builder) => {
     builder
-      // Submit Feedback
       .addCase(submitFeedback.pending, (state) => {
         state.operations.feedback.loading = true;
         state.operations.feedback.error = null;
@@ -139,8 +136,6 @@ const alumniSlice = createSlice({
         state.operations.feedback.loading = false;
         state.operations.feedback.error = action.payload;
       })
-      
-      // Fetch Feedbacks
       .addCase(fetchFeedbacks.pending, (state) => {
         state.operations.feedback.loading = true;
         state.operations.feedback.error = null;
@@ -153,8 +148,6 @@ const alumniSlice = createSlice({
         state.operations.feedback.loading = false;
         state.operations.feedback.error = action.payload;
       })
-      
-      // Fetch Alumni Profile
       .addCase(fetchAlumniProfile.pending, (state) => {
         state.operations.profile.loading = true;
         state.operations.profile.error = null;
@@ -167,8 +160,6 @@ const alumniSlice = createSlice({
         state.operations.profile.loading = false;
         state.operations.profile.error = action.payload;
       })
-      
-      // Update Alumni Profile
       .addCase(updateAlumniProfile.pending, (state) => {
         state.operations.profile.loading = true;
         state.operations.profile.error = null;
@@ -181,8 +172,6 @@ const alumniSlice = createSlice({
         state.operations.profile.loading = false;
         state.operations.profile.error = action.payload;
       })
-      
-      // Fetch Alumni Events
       .addCase(fetchAlumniEvents.pending, (state) => {
         state.operations.events.loading = true;
         state.operations.events.error = null;
@@ -195,15 +184,12 @@ const alumniSlice = createSlice({
         state.operations.events.loading = false;
         state.operations.events.error = action.payload;
       })
-      
-      // Register for Event
       .addCase(registerForEvent.pending, (state) => {
         state.operations.events.loading = true;
         state.operations.events.error = null;
       })
       .addCase(registerForEvent.fulfilled, (state, action) => {
         state.operations.events.loading = false;
-        // Update the event registration status
         const eventIndex = state.events.findIndex(event => event.id === action.payload.eventId);
         if (eventIndex !== -1) {
           state.events[eventIndex].registered = true;
@@ -212,28 +198,66 @@ const alumniSlice = createSlice({
       .addCase(registerForEvent.rejected, (state, action) => {
         state.operations.events.loading = false;
         state.operations.events.error = action.payload;
+      })
+      .addCase(fetchChatUsers.pending, (state) => {
+        state.operations.chat.loading = true;
+        state.operations.chat.error = null;
+      })
+      .addCase(fetchChatUsers.fulfilled, (state, action) => {
+        state.operations.chat.loading = false;
+        state.chatUsers = action.payload;
+      })
+      .addCase(fetchChatUsers.rejected, (state, action) => {
+        state.operations.chat.loading = false;
+        state.operations.chat.error = action.payload;
+      })
+      .addCase(fetchChats.pending, (state) => {
+        state.operations.chat.loading = true;
+        state.operations.chat.error = null;
+      })
+      .addCase(fetchChats.fulfilled, (state, action) => {
+        state.operations.chat.loading = false;
+        state.chats = action.payload;
+      })
+      .addCase(fetchChats.rejected, (state, action) => {
+        state.operations.chat.loading = false;
+        state.operations.chat.error = action.payload;
+      })
+      .addCase(sendMessage.pending, (state) => {
+        state.operations.chat.loading = true;
+        state.operations.chat.error = null;
+      })
+      .addCase(sendMessage.fulfilled, (state, action) => {
+        state.operations.chat.loading = false;
+        state.chats.push(action.payload);
+      })
+      .addCase(sendMessage.rejected, (state, action) => {
+        state.operations.chat.loading = false;
+        state.operations.chat.error = action.payload;
       });
   }
 });
 
-export const { clearError, resetAlumniState } = alumniSlice.actions;
-export default alumniSlice.reducer;
+export const { clearError, resetAlumniState, receiveMessage } = alumniSlice.actions;
 
-// Feedback selectors
 export const selectFeedbacks = (state) => state.alumni.feedbacks;
 export const selectFeedbacksLoading = (state) => state.alumni.operations.feedback.loading;
 export const selectFeedbacksError = (state) => state.alumni.operations.feedback.error;
 
-// Profile selectors
 export const selectAlumniProfile = (state) => state.alumni.profile;
 export const selectProfileLoading = (state) => state.alumni.operations.profile.loading;
 export const selectProfileError = (state) => state.alumni.operations.profile.error;
 
-// Events selectors
 export const selectAlumniEvents = (state) => state.alumni.events;
 export const selectEventsLoading = (state) => state.alumni.operations.events.loading;
 export const selectEventsError = (state) => state.alumni.operations.events.error;
 
-// General selectors
+export const selectChatUsers = (state) => state.alumni.chatUsers;
+export const selectChats = (state) => state.alumni.chats;
+export const selectChatLoading = (state) => state.alumni.operations.chat.loading;
+export const selectChatError = (state) => state.alumni.operations.chat.error;
+
 export const selectAlumniLoading = (state) => state.alumni.loading;
 export const selectAlumniError = (state) => state.alumni.error;
+
+export default alumniSlice.reducer;

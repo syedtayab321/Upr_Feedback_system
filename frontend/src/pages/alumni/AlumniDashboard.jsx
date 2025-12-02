@@ -1,13 +1,13 @@
 import React, { useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
-import { useNavigate, Routes, Route } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import ProtectedRoute from "./../../routes/ProtectedRoutes.jsx";
 import Sidebar from "./../../components/common/Sidebar.jsx";
 import LogoutModal from "./../../components/common/LogoutModal.jsx";
 import AlumniFeedbackForm from "./../../components/alumni/AlumniFeedbackForm.jsx";
 import AlumniFeedbackList from "./../../components/alumni/AlumniFeedbackList.jsx";
-import Footer from "./../../components/layout/Footer.jsx";
-import { FaPaperPlane, FaList, FaBars, FaSignOutAlt } from "react-icons/fa";
+import AlumniChatInterface from "./../../components/alumni/AlumniChatInterface.jsx";
+import { FaPaperPlane, FaList, FaBars, FaSignOutAlt, FaComment } from "react-icons/fa";
 import { logout } from "./../../redux/slices/authSlice";
 
 const AlumniDashboard = () => {
@@ -21,6 +21,7 @@ const AlumniDashboard = () => {
   const tabs = [
     { id: "feedback", label: "Share Feedback", icon: FaPaperPlane, path: "/alumni/feedback" },
     { id: "feedbacks", label: "View Feedback", icon: FaList, path: "/alumni/feedbacks" },
+    { id: "chat", label: "Chat", icon: FaComment, path: "/alumni/chat" },
   ];
 
   const handleLogout = () => {
@@ -35,6 +36,8 @@ const AlumniDashboard = () => {
         return <AlumniFeedbackForm />;
       case "feedbacks":
         return <AlumniFeedbackList />;
+      case "chat":
+        return <AlumniChatInterface />;
       default:
         return <AlumniFeedbackForm />;
     }
@@ -43,7 +46,6 @@ const AlumniDashboard = () => {
   return (
     <ProtectedRoute allowedRoles={["alumni"]}>
       <div className="min-h-screen bg-gray-100 flex flex-col overflow-hidden scrollbar-transparent">
-        {/* Header */}
         <header className="bg-gradient-to-r from-navy-800 to-navy-600 text-white bg-blue-950 shadow-md sticky top-0 z-40">
           <div className="max-w-7xl mx-auto px-4 py-3 sm:px-6 lg:px-8 flex items-center justify-between">
             <div className="flex items-center">
@@ -71,7 +73,6 @@ const AlumniDashboard = () => {
         </header>
 
         <div className="flex h-[90vh] overflow-hidden scrollbar-transparent">
-          {/* Sidebar */}
           <Sidebar
             tabs={tabs}
             activeTab={activeTab}
@@ -81,7 +82,6 @@ const AlumniDashboard = () => {
             setIsLogoutModalOpen={setIsLogoutModalOpen}
           />
 
-          {/* Main Content */}
           <main className="flex-1 p-4 sm:p-6 md:p-8 overflow-scroll">
             <div className="max-w-7xl mx-auto">
               {renderContent()}
@@ -89,7 +89,6 @@ const AlumniDashboard = () => {
           </main>
         </div>
 
-        {/* Logout Modal */}
         <LogoutModal
           isOpen={isLogoutModalOpen}
           onClose={() => setIsLogoutModalOpen(false)}
