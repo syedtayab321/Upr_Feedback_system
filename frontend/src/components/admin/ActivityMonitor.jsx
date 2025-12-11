@@ -82,11 +82,11 @@ const ActivityMonitor = () => {
         data={feedbackData} 
         columns={['User', 'Content', 'Sentiment', 'Portal', 'Date']} 
       />
-      <Table 
+      {/* <Table 
         title="Chats" 
         data={chatData} 
         columns={['Sender', 'Receiver', 'Message', 'Sentiment', 'Date']} 
-      />
+      /> */}
     </div>
   );
 };

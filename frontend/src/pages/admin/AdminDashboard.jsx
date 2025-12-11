@@ -31,7 +31,7 @@ const AdminDashboard = () => {
   const tabs = [
     { id: "users", label: "User Management", icon: FaUsers },
     { id: "monitor", label: "Activity Monitor", icon: FaClipboardList },
-    { id: "moderation", label: "Moderation", icon: FaComments },
+    // { id: "moderation", label: "Moderation", icon: FaComments },
     { id: "reports", label: "Sentiment Reports", icon: FaChartBar },
     { id: "questionnaires", label: "Questionnaires", icon: FaUserCheck },
   ];
@@ -48,8 +48,8 @@ const AdminDashboard = () => {
         return <UserManagement />;
       case "monitor":
         return <ActivityMonitor />;
-      case "moderation":
-        return <ModerationPanel />;
+      // case "moderation":
+      //   return <ModerationPanel />;
       case "reports":
         return <SentimentReports />;
       case "questionnaires":
