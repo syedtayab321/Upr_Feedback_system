@@ -67,19 +67,50 @@ export const getChats = async (req, res) => {
 
 export const getSentimentTrends = async (req, res) => {
   try {
-    const { startDate, endDate } = req.query;
-    const where = { portal: 'academic' };
-    if (startDate) where.createdAt = { [Op.gte]: new Date(startDate) };
-    if (endDate) where.createdAt = { ...where.createdAt, [Op.lte]: new Date(endDate) };
+    
+    const { startDate, endDate } = req.query.startDate ? req.query : req.body;
+    const where = {};
+    
+    if (startDate || endDate) {
+      where.createdAt = {};
+      
+      if (startDate) {
+        const start = new Date(startDate);
+        start.setHours(0, 0, 0, 0);
+        where.createdAt[Op.gte] = start;
+        console.log('Start date filter:', start);
+      }
+      
+      if (endDate) {
+        const end = new Date(endDate);
+        end.setHours(23, 59, 59, 999);
+        where.createdAt[Op.lte] = end;
+        console.log('End date filter:', end);
+      }
+    }
+    await db.Feedback.findAll({
+      limit: 10,
+      order: [['createdAt', 'DESC']],
+      attributes: ['id', 'sentiment', 'portal', 'createdAt', 'content', 'userId']
+    });
+  
+    const feedbacks = await db.Feedback.findAll({ 
+      where,
+      attributes: ['id', 'sentiment', 'portal', 'createdAt', 'content']
+    });
 
-    const feedbacks = await db.Feedback.findAll({ where });
     const sentimentCounts = {
       positive: feedbacks.filter(f => f.sentiment === 'positive').length,
       negative: feedbacks.filter(f => f.sentiment === 'negative').length,
-      neutral: feedbacks.filter(f => f.sentiment === 'neutral').length
+      neutral: feedbacks.filter(f => f.sentiment === 'neutral' || !f.sentiment).length
     };
+    
     res.json(sentimentCounts);
   } catch (err) {
-    res.status(500).json({ message: err.message });
+    console.error('Error in getSentimentTrends:', err);
+    res.status(500).json({ 
+      message: err.message,
+      stack: process.env.NODE_ENV === 'development' ? err.stack : undefined
+    });
   }
 };

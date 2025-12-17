@@ -50,6 +50,7 @@ export const fetchSentimentTrends = createAsyncThunk(
   'academic/fetchSentimentTrends',
   async (params, { rejectWithValue }) => {
     try {
+      console.log("function called");
       return await academicApi.fetchSentimentTrendsApi(params);
     } catch (error) {
       return rejectWithValue(error.message);

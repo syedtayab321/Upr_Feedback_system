@@ -80,6 +80,7 @@ export const moderateChatApi = async (id) => {
 export const generateReportApi = async (params) => {
   try {
     const response = await api.get('/admin/reports/sentiment', { params });
+    console.log(response.data);
     return response.data;
   } catch (error) {
     throw new Error(error.response?.data?.message || 'Failed to generate report');

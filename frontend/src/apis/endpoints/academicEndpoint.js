@@ -21,7 +21,6 @@ export const getSocket = () => {
 export const fetchFeedbacksApi = async () => {
   try {
     const response = await api.get('/academic/feedback');
-    console.log(response);
     return response.data;
   } catch (error) {
     throw new Error(error.response?.data?.message || 'Failed to fetch feedbacks');
@@ -80,6 +79,7 @@ export const sendMessageApi = async ({ senderId, receiverId, message }) => {
 export const fetchSentimentTrendsApi = async (params) => {
   try {
     const response = await api.get('/academic/sentiment-trends', { params });
+    console.log(response);
     return response.data;
   } catch (error) {
     throw new Error(error.response?.data?.message || 'Failed to fetch sentiment trends');

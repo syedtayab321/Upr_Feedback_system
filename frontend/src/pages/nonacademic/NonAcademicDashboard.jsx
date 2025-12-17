@@ -18,7 +18,7 @@ const NonAcademicDashboard = () => {
   const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false);
 
   const tabs = [
-    { id: "feedback", label: "Feedback", icon: FaList, path: "/non-academic/feedback" },
+    { id: "feedback", label: "View Feedback", icon: FaList, path: "/non-academic/feedback" },
     { id: "chat", label: "Chat", icon: FaComment, path: "/non-academic/chat" },
   ];
 

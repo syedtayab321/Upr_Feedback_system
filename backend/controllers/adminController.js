@@ -101,8 +101,8 @@ export const generateSentimentReport = async (req, res) => {
     if (startDate) where.createdAt = { [Op.gte]: new Date(startDate) };
     if (endDate) where.createdAt = { ...where.createdAt, [Op.lte]: new Date(endDate) };
 
-    const feedbacks = await db.Feedback.findAll({ where, include: db.User });
-    const chats = await db.Chat.findAll({ where, include: [{ model: db.User, as: 'sender' }] });
+    const feedbacks = await db.Feedback.findAll({  include: db.User });
+    const chats = await db.Chat.findAll({ include: [{ model: db.User, as: 'sender' }] });
 
     // Filter by user role
     const filteredFeedbacks = role ? feedbacks.filter(f => f.User.role === role) : feedbacks;

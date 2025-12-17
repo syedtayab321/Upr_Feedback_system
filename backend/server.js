@@ -59,17 +59,14 @@ app.use((req, res) => {
 const activeUsers = new Map();
 
 io.on('connection', (socket) => {
-  console.log('New socket connection:', socket.id);
 
   socket.on('join', (userId) => {
     activeUsers.set(userId, socket.id);
     socket.join(userId);
-    console.log(`User ${userId} joined room with socket ${socket.id}`);
   });
 
   socket.on('sendMessage', async ({ senderId, receiverId, message }, callback) => {
     try {
-      console.log('Processing message:', { senderId, receiverId, message: message.substring(0, 50) });
       
       if (!senderId || !receiverId || !message?.trim()) {
         if (callback) callback({ success: false, error: 'Invalid message data' });
@@ -107,7 +104,6 @@ io.on('connection', (socket) => {
         });
       }
       
-      console.log(`Message sent from ${senderId} to ${receiverId}`);
     } catch (err) {
       console.error('Chat error:', err);
       if (callback) {
@@ -118,11 +114,9 @@ io.on('connection', (socket) => {
   });
 
   socket.on('disconnect', () => {
-    console.log('Socket disconnected:', socket.id);
     for (const [userId, socketId] of activeUsers.entries()) {
       if (socketId === socket.id) {
         activeUsers.delete(userId);
-        console.log(`User ${userId} removed from active users`);
         break;
       }
     }

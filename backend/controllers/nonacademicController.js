@@ -4,11 +4,11 @@ import { Op } from 'sequelize';
 export const getFeedbacks = async (req, res) => {
   try {
     const feedbacks = await db.Feedback.findAll({
-      where: { portal: 'non_academic' },
       include: [
         { model: db.User },
         { model: db.FeedbackResponse, include: [{ model: db.User, as: 'responder' }] }
-      ]
+      ],
+      order: [['createdAt', 'DESC']]
     });
     res.json(feedbacks);
   } catch (err) {
@@ -55,7 +55,7 @@ export const getChatUsers = async (req, res) => {
   try {
     const users = await db.User.findAll({
       where: {
-        role: { [Op.in]: ['academic_staff', 'non_academic_staff'] }
+        role: { [Op.in]: ['academic_staff', 'non_academic_staff','student'] }
       },
       attributes: ['id', 'firstName', 'lastName', 'role']
     });
