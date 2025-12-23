@@ -69,6 +69,7 @@ export const fetchChatsApi = async () => {
 export const fetchChatUsersApi = async () => {
   try{
     const response = await api.get('/academic/chat-users');
+     console.log(response);
     return response.data;
   }
   catch(error){

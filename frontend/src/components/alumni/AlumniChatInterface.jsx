@@ -27,7 +27,9 @@ const AlumniChatInterface = () => {
 
   useEffect(() => {
     if (chatRef.current) {
-      chatRef.current.scrollTop = chatRef.current.scrollHeight;
+      setTimeout(() => {
+        chatRef.current.scrollTop = chatRef.current.scrollHeight;
+      }, 100);
     }
   }, [chats, selectedUser]);
 
@@ -59,25 +61,20 @@ const AlumniChatInterface = () => {
     }
   };
 
-  // Filter chats for selected user (excluding self-chat messages)
-  const filteredChats = selectedUser
+  const filteredChats = selectedUser && selectedUser.id !== user.id
     ? chats.filter(
         (chat) =>
-          // Messages between current user and selected user
           (chat.senderId === user.id && chat.receiverId === selectedUser.id) ||
           (chat.senderId === selectedUser.id && chat.receiverId === user.id)
       )
     : [];
 
-  // Sort filtered chats by timestamp
   const sortedChats = [...filteredChats].sort(
     (a, b) => new Date(a.createdAt) - new Date(b.createdAt)
   );
 
-  // Filter chat users to exclude current user from the list
-  const otherChatUsers = chatUsers.filter(u => u.id !== user.id);
+  const allChatUsers = Array.isArray(chatUsers) ? chatUsers : [];
 
-  // Find user's last message timestamp for sorting
   const getUserLastMessageTime = (userId) => {
     const userChats = chats.filter(
       chat => 
@@ -95,12 +92,18 @@ const AlumniChatInterface = () => {
     return lastMessage;
   };
 
-  // Sort users by last message time (most recent first)
-  const sortedUsers = [...otherChatUsers].sort((a, b) => {
+  const sortedUsers = [...allChatUsers].sort((a, b) => {
     const timeA = getUserLastMessageTime(a.id);
     const timeB = getUserLastMessageTime(b.id);
     return timeB - timeA;
   });
+
+  useEffect(() => {
+    if (!selectedUser && sortedUsers.length > 0) {
+      const firstNonSelfUser = sortedUsers.find(u => u.id !== user.id) || sortedUsers[0];
+      setSelectedUser(firstNonSelfUser);
+    }
+  }, [sortedUsers, selectedUser, user]);
 
   const handleKeyPress = (e) => {
     if (e.key === 'Enter' && !e.shiftKey) {
@@ -112,7 +115,6 @@ const AlumniChatInterface = () => {
   return (
     <div className="container mx-auto p-4 bg-gradient-to-br from-gray-50 to-blue-50 min-h-screen">
       <div className="bg-white shadow-2xl rounded-2xl overflow-hidden flex flex-col md:flex-row h-[85vh] border border-gray-200">
-        {/* Left Panel - User List */}
         <div className="w-full md:w-1/3 border-b md:border-r border-gray-200 flex flex-col">
           <div className="flex justify-between items-center p-5 bg-gradient-to-r from-blue-600 to-blue-700 text-white">
             <h2 className="text-2xl font-bold flex items-center gap-2">
@@ -129,7 +131,6 @@ const AlumniChatInterface = () => {
             </button>
           </div>
           
-          {/* User List */}
           <div className="flex-grow overflow-y-auto">
             {loading ? (
               <div className="flex justify-center items-center h-32">
@@ -172,21 +173,34 @@ const AlumniChatInterface = () => {
                         <div className="flex items-center">
                           <div className="relative">
                             <div className="w-12 h-12 rounded-full bg-gradient-to-br from-blue-500 to-blue-700 flex items-center justify-center text-white font-bold text-lg">
-                              {u.firstName[0]}
+                              {u.firstName?.[0] || 'A'}
                             </div>
                             {unreadCount > 0 && (
                               <div className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 rounded-full flex items-center justify-center">
                                 <span className="text-xs text-white font-bold">{unreadCount}</span>
                               </div>
                             )}
+                            {u.id === user?.id && (
+                              <div className="absolute -top-1 -right-1 w-5 h-5 bg-green-500 rounded-full flex items-center justify-center">
+                                <span className="text-xs text-white">✓</span>
+                              </div>
+                            )}
                           </div>
                           <div className="ml-4">
-                            <p className="font-semibold text-gray-800">
+                            <p className="font-semibold text-gray-800 flex items-center gap-2">
                               {u.firstName} {u.lastName}
+                              {u.id === user?.id && (
+                                <span className="text-xs px-2 py-0.5 bg-green-100 text-green-700 rounded-full">
+                                  You
+                                </span>
+                              )}
                             </p>
                             <p className="text-sm text-gray-500 truncate max-w-[150px]">
                               {lastMessage 
-                                ? (lastMessage.senderId === user.id ? "You: " : "") + lastMessage.message
+                                ? (lastMessage.senderId === user.id ? "You: " : "") + 
+                                  (lastMessage.message?.length > 30 
+                                    ? lastMessage.message.substring(0, 30) + "..." 
+                                    : lastMessage.message)
                                 : "No messages yet"
                               }
                             </p>
@@ -203,7 +217,7 @@ const AlumniChatInterface = () => {
                             }
                           </p>
                           <span className="text-xs px-2 py-1 rounded-full bg-blue-100 text-blue-600 capitalize">
-                            {u.role.replace('_', ' ')}
+                            {u.role?.replace('_', ' ') || 'alumni'}
                           </span>
                         </div>
                       </div>
@@ -215,11 +229,9 @@ const AlumniChatInterface = () => {
           </div>
         </div>
 
-        {/* Right Panel - Chat Window */}
         <div className="w-full md:w-2/3 flex flex-col">
           {selectedUser ? (
             <>
-              {/* Chat Header */}
               <div className="flex justify-between items-center p-4 bg-gradient-to-r from-blue-50 to-blue-100 border-b border-gray-200">
                 <div className="flex items-center gap-3">
                   <button
@@ -229,14 +241,19 @@ const AlumniChatInterface = () => {
                     <FaArrowLeft className="text-gray-600" />
                   </button>
                   <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-blue-700 flex items-center justify-center text-white font-bold">
-                    {selectedUser.firstName[0]}
+                    {selectedUser.firstName?.[0] || 'A'}
                   </div>
                   <div>
-                    <h3 className="font-semibold text-gray-800">
+                    <h3 className="font-semibold text-gray-800 flex items-center gap-2">
                       {selectedUser.firstName} {selectedUser.lastName}
+                      {selectedUser.id === user?.id && (
+                        <span className="text-xs px-2 py-0.5 bg-green-100 text-green-700 rounded-full">
+                          You
+                        </span>
+                      )}
                     </h3>
                     <p className="text-sm text-gray-500 capitalize">
-                      {selectedUser.role.replace('_', ' ')}
+                      {selectedUser.role?.replace('_', ' ') || 'alumni'}
                     </p>
                   </div>
                 </div>
@@ -250,7 +267,6 @@ const AlumniChatInterface = () => {
                 </button>
               </div>
 
-              {/* Messages Area */}
               <div
                 ref={chatRef}
                 className="flex-grow p-4 overflow-y-auto bg-gradient-to-b from-white to-gray-50 space-y-3"
@@ -301,7 +317,6 @@ const AlumniChatInterface = () => {
                 )}
               </div>
 
-              {/* Message Input */}
               <form
                 onSubmit={handleSendMessage}
                 className="p-4 border-t bg-white"

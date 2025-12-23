@@ -35,45 +35,48 @@ const AcademicChatInterface = () => {
   }, [chats, selectedUser]);
 
   const allChatParticipants = useMemo(() => {
-    if (!chats || !Array.isArray(chats)) return [];
-    
-    const participants = new Map();
-    chatUsers.forEach(u => {
-      if (u.id !== user?.id) {
-        participants.set(u.id, u);
+  if (!chats || !Array.isArray(chats)) return [];
+  
+  const participants = new Map();
+  const currentUserId = user?.id;
+  
+  // Add ALL users from chatUsers first
+  chatUsers.forEach(u => {
+    participants.set(u.id, u);
+  });
+  
+  // Add users from chat history
+  chats.forEach(chat => {
+    if (chat.sender && chat.sender.id) {
+      participants.set(chat.sender.id, chat.sender);
+    } else if (chat.senderId) {
+      if (!participants.has(chat.senderId)) {
+        participants.set(chat.senderId, {
+          id: chat.senderId,
+          firstName: 'Unknown',
+          lastName: 'User',
+          role: 'user'
+        });
       }
-    });
+    }
     
-    chats.forEach(chat => {
-      if (chat.sender && chat.sender.id !== user?.id) {
-        participants.set(chat.sender.id, chat.sender);
-      } else if (chat.senderId && chat.senderId !== user?.id) {
-        if (!participants.has(chat.senderId)) {
-          participants.set(chat.senderId, {
-            id: chat.senderId,
-            firstName: 'Unknown',
-            lastName: 'User',
-            role: 'user'
-          });
-        }
+    if (chat.receiver && chat.receiver.id) {
+      participants.set(chat.receiver.id, chat.receiver);
+    } else if (chat.receiverId) {
+      if (!participants.has(chat.receiverId)) {
+        participants.set(chat.receiverId, {
+          id: chat.receiverId,
+          firstName: 'Unknown',
+          lastName: 'User',
+          role: 'user'
+        });
       }
-      
-      if (chat.receiver && chat.receiver.id !== user?.id) {
-        participants.set(chat.receiver.id, chat.receiver);
-      } else if (chat.receiverId && chat.receiverId !== user?.id) {
-        if (!participants.has(chat.receiverId)) {
-          participants.set(chat.receiverId, {
-            id: chat.receiverId,
-            firstName: 'Unknown',
-            lastName: 'User',
-            role: 'user'
-          });
-        }
-      }
-    });
-    
-    return Array.from(participants.values());
-  }, [chats, chatUsers, user]);
+    }
+  });
+  
+  // Filter out current user
+  return Array.from(participants.values()).filter(u => u.id !== currentUserId);
+}, [chats, chatUsers, user]);
 
   useEffect(() => {
     if (!selectedUser && allChatParticipants.length > 0) {
@@ -119,8 +122,7 @@ const AcademicChatInterface = () => {
       
       const senderId = chat.senderId || chat.sender?.id || chat.sender;
       const receiverId = chat.receiverId || chat.receiver?.id || chat.receiver;
-      
-      console.log(`Chat: ${chat.message} | sender=${senderId}, receiver=${receiverId}`);
+    
       
       return (
         (senderId === user.id && receiverId === selectedUser.id) ||

@@ -28,7 +28,6 @@ export const fetchQuestionnaires = createAsyncThunk(
   "nonAcademic/fetchQuestionnaires",
   async (_, { rejectWithValue }) => {
     try {
-      console.log("Fetching questionnaires from API...");
       return await nonAcademicApi.fetchQuestionnairesApi();
     } catch (error) {
       return rejectWithValue(error.message);
@@ -62,7 +61,7 @@ export const fetchChats = createAsyncThunk(
 );
 
 export const fetchChatUsers = createAsyncThunk(
-  "academic/fetchChatUsers",
+  "nonAcademic/fetchChatUsers",
   async (_, { rejectWithValue }) => {
     try {
       return await nonAcademicApi.fetchChatUsersApi();
@@ -89,19 +88,14 @@ const nonAcademicSlice = createSlice({
     feedbacks: [],
     questionnaires: [],
     chats: [],
+    chatUsers: [],
     loading: false,
     error: null,
     socketConnected: false,
     submitSuccess: false,
     operations: {
-      feedback: {
-        loading: false,
-        error: null,
-      },
-      chat: {
-        loading: false,
-        error: null,
-      },
+      feedback: { loading: false, error: null },
+      chat: { loading: false, error: null },
       questionnaire: { loading: false, error: null },
     },
   },
@@ -208,7 +202,6 @@ const nonAcademicSlice = createSlice({
         state.operations.chat.error = action.payload;
       })
 
-      // Fetch Chat Users (Added)
       .addCase(fetchChatUsers.pending, (state) => {
         state.operations.chat.loading = true;
         state.operations.chat.error = null;
@@ -285,18 +278,16 @@ export const selectFeedbacksError = (state) =>
 // Chat selectors
 export const selectChats = (state) => state.nonAcademic.chats;
 export const selectChatUsers = (state) => state.nonAcademic.chatUsers;
-export const selectChatsLoading = (state) =>
-  state.nonAcademic.operations.chat.loading;
-export const selectChatsError = (state) =>
-  state.nonAcademic.operations.chat.error;
-export const selectSocketConnected = (state) =>
-  state.nonAcademic.socketConnected;
+export const selectChatsLoading = (state) =>state.nonAcademic.operations.chat.loading;
+export const selectChatsError = (state) => state.nonAcademic.operations.chat.error;
+export const selectSocketConnected = (state) => state.nonAcademic.socketConnected;
 
 // General selectors
 export const selectNonAcademicLoading = (state) => state.nonAcademic.loading;
 export const selectNonAcademicError = (state) => state.nonAcademic.error;
 
-
 export const selectQuestionnaires = (state) => state.nonAcademic.questionnaires;
-export const selectQuestionnairesLoading = (state) => state.nonAcademic.operations.questionnaire.loading;
-export const selectQuestionnairesError = (state) => state.nonAcademic.operations.questionnaire.error;
+export const selectQuestionnairesLoading = (state) =>
+  state.nonAcademic.operations.questionnaire.loading;
+export const selectQuestionnairesError = (state) =>
+  state.nonAcademic.operations.questionnaire.error;

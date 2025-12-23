@@ -7,7 +7,7 @@ import { FaSpinner, FaPaperPlane, FaExclamationCircle, FaSync, FaUser, FaArrowLe
 const NonAcademicChatInterface = () => {
   const dispatch = useDispatch();
   const { user } = useSelector((state) => state.auth);
-  const { chatUsers = [], chats = [], loading, error } = useSelector((state) => state.nonacademic || state.academic);
+  const { chatUsers = [], chats = [], loading, error } = useSelector((state) => state.nonAcademic);
   const [selectedUser, setSelectedUser] = useState(null);
   const [message, setMessage] = useState('');
   const [refreshing, setRefreshing] = useState(false);
@@ -25,7 +25,6 @@ const NonAcademicChatInterface = () => {
     dispatch(fetchChats());
   };
 
-  // Auto-scroll to bottom
   useEffect(() => {
     if (chatRef.current) {
       setTimeout(() => {
@@ -34,56 +33,11 @@ const NonAcademicChatInterface = () => {
     }
   }, [chats, selectedUser]);
 
-  // Get ALL users from chats (including those not in chatUsers)
   const allChatParticipants = useMemo(() => {
-    if (!chats || !Array.isArray(chats)) return [];
-    
-    const participants = new Map();
-    
-    // Add users from chatUsers first
-    chatUsers.forEach(u => {
-      if (u.id !== user?.id) {
-        participants.set(u.id, u);
-      }
-    });
-    
-    // Add users from chat history
-    chats.forEach(chat => {
-      // Handle sender
-      if (chat.sender && chat.sender.id !== user?.id) {
-        participants.set(chat.sender.id, chat.sender);
-      } else if (chat.senderId && chat.senderId !== user?.id) {
-        // If we only have senderId, create a minimal user object
-        if (!participants.has(chat.senderId)) {
-          participants.set(chat.senderId, {
-            id: chat.senderId,
-            firstName: 'Unknown',
-            lastName: 'User',
-            role: 'user'
-          });
-        }
-      }
-      
-      // Handle receiver
-      if (chat.receiver && chat.receiver.id !== user?.id) {
-        participants.set(chat.receiver.id, chat.receiver);
-      } else if (chat.receiverId && chat.receiverId !== user?.id) {
-        // If we only have receiverId, create a minimal user object
-        if (!participants.has(chat.receiverId)) {
-          participants.set(chat.receiverId, {
-            id: chat.receiverId,
-            firstName: 'Unknown',
-            lastName: 'User',
-            role: 'user'
-          });
-        }
-      }
-    });
-    
-    return Array.from(participants.values());
-  }, [chats, chatUsers, user]);
+    if (!Array.isArray(chatUsers)) return [];
+    return chatUsers;
+  }, [chatUsers]);
 
-  // Auto-select first user
   useEffect(() => {
     if (!selectedUser && allChatParticipants.length > 0) {
       setSelectedUser(allChatParticipants[0]);
@@ -118,9 +72,12 @@ const NonAcademicChatInterface = () => {
     }
   };
 
-  // Filter chats for the selected user (EXCLUDE self-chat)
   const filteredChats = useMemo(() => {
     if (!selectedUser || !user || !chats || !Array.isArray(chats)) {
+      return [];
+    }
+    
+    if (selectedUser.id === user.id) {
       return [];
     }
 
@@ -130,7 +87,6 @@ const NonAcademicChatInterface = () => {
       const senderId = chat.senderId || chat.sender?.id || chat.sender;
       const receiverId = chat.receiverId || chat.receiver?.id || chat.receiver;
       
-      // Only show messages between current user and selected user
       return (
         (senderId === user.id && receiverId === selectedUser.id) ||
         (senderId === selectedUser.id && receiverId === user.id)
@@ -138,14 +94,12 @@ const NonAcademicChatInterface = () => {
     });
   }, [chats, selectedUser, user]);
 
-  // Sort chats by timestamp
   const sortedChats = [...filteredChats].sort((a, b) => {
     const dateA = new Date(a.createdAt || a.timestamp || Date.now());
     const dateB = new Date(b.createdAt || b.timestamp || Date.now());
     return dateA - dateB;
   });
 
-  // Get user's display info
   const getUserDisplayInfo = (userObj) => {
     if (!userObj) return { name: 'Unknown User', initial: '?', role: 'user' };
     
@@ -161,7 +115,6 @@ const NonAcademicChatInterface = () => {
     };
   };
 
-  // Get last message for a user
   const getLastMessage = (userId) => {
     if (!chats || !Array.isArray(chats)) return null;
     
@@ -190,7 +143,6 @@ const NonAcademicChatInterface = () => {
   return (
     <div className="container mx-auto p-4 bg-gradient-to-br from-purple-50 to-pink-50 min-h-screen">
       <div className="bg-white shadow-2xl rounded-2xl overflow-hidden flex flex-col md:flex-row h-[85vh] border border-gray-200">
-        {/* Left Panel - User List */}
         <div className="w-full md:w-1/3 border-b md:border-r border-gray-200 flex flex-col">
           <div className="flex justify-between items-center p-5 bg-gradient-to-r from-purple-600 to-pink-600 text-white">
             <h2 className="text-2xl font-bold flex items-center gap-2">
@@ -207,7 +159,6 @@ const NonAcademicChatInterface = () => {
             </button>
           </div>
           
-          {/* User List */}
           <div className="flex-grow overflow-y-auto">
             {loading ? (
               <div className="flex justify-center items-center h-32">
@@ -245,10 +196,20 @@ const NonAcademicChatInterface = () => {
                             <div className="w-12 h-12 rounded-full bg-gradient-to-br from-purple-500 to-pink-600 flex items-center justify-center text-white font-bold text-lg">
                               {userInfo.initial}
                             </div>
+                            {u.id === user?.id && (
+                              <div className="absolute -top-1 -right-1 bg-green-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
+                                ✓
+                              </div>
+                            )}
                           </div>
                           <div className="ml-4">
-                            <p className="font-semibold text-gray-800">
+                            <p className="font-semibold text-gray-800 flex items-center gap-2">
                               {userInfo.name}
+                              {u.id === user?.id && (
+                                <span className="text-xs px-2 py-0.5 bg-green-100 text-green-700 rounded-full">
+                                  You
+                                </span>
+                              )}
                             </p>
                             <p className="text-sm text-gray-500 truncate max-w-[150px]">
                               {lastMessage 
@@ -283,11 +244,9 @@ const NonAcademicChatInterface = () => {
           </div>
         </div>
 
-        {/* Right Panel - Chat Window */}
         <div className="w-full md:w-2/3 flex flex-col">
           {selectedUser ? (
             <>
-              {/* Chat Header */}
               <div className="flex justify-between items-center p-4 bg-gradient-to-r from-purple-50 to-pink-100 border-b border-gray-200">
                 <div className="flex items-center gap-3">
                   <button
@@ -300,8 +259,13 @@ const NonAcademicChatInterface = () => {
                     {getUserDisplayInfo(selectedUser).initial}
                   </div>
                   <div>
-                    <h3 className="font-semibold text-gray-800">
+                    <h3 className="font-semibold text-gray-800 flex items-center gap-2">
                       {getUserDisplayInfo(selectedUser).name}
+                      {selectedUser.id === user?.id && (
+                        <span className="text-xs px-2 py-0.5 bg-green-100 text-green-700 rounded-full">
+                          You
+                        </span>
+                      )}
                     </h3>
                     <p className="text-sm text-gray-500 capitalize">
                       {getUserDisplayInfo(selectedUser).role.replace('_', ' ')}
@@ -323,7 +287,6 @@ const NonAcademicChatInterface = () => {
                 </div>
               </div>
 
-              {/* Messages Area */}
               <div
                 ref={chatRef}
                 className="flex-grow p-4 overflow-y-auto bg-gradient-to-b from-white to-purple-50 space-y-3"
@@ -386,7 +349,6 @@ const NonAcademicChatInterface = () => {
                 )}
               </div>
 
-              {/* Message Input */}
               <form
                 onSubmit={handleSendMessage}
                 className="p-4 border-t bg-white"
