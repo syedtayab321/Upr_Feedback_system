@@ -7,6 +7,7 @@ import LogoutModal from "./../../components/common/LogoutModal.jsx";
 import AlumniFeedbackForm from "./../../components/alumni/AlumniFeedbackForm.jsx";
 import AlumniFeedbackList from "./../../components/alumni/AlumniFeedbackList.jsx";
 import AlumniChatInterface from "./../../components/alumni/AlumniChatInterface.jsx";
+import AlumniQuestionerFeedbackForm from "./../../components/alumni/AlumniQuestionerFeedbackForm.jsx";
 import { FaPaperPlane, FaList, FaBars, FaSignOutAlt, FaComment } from "react-icons/fa";
 import { logout } from "./../../redux/slices/authSlice";
 
@@ -20,6 +21,7 @@ const AlumniDashboard = () => {
 
   const tabs = [
     { id: "feedback", label: "Share Feedback", icon: FaPaperPlane, path: "/alumni/feedback" },
+    { id: "Questioner", label: "Questioner Feedback", icon: FaPaperPlane, path: "/alumni/feedback_questioner" },
     { id: "feedbacks", label: "View Feedback", icon: FaList, path: "/alumni/feedbacks" },
     { id: "chat", label: "Chat", icon: FaComment, path: "/alumni/chat" },
   ];
@@ -32,6 +34,8 @@ const AlumniDashboard = () => {
 
   const renderContent = () => {
     switch (activeTab) {
+      case "Questioner":
+        return <AlumniQuestionerFeedbackForm />;
       case "feedback":
         return <AlumniFeedbackForm />;
       case "feedbacks":

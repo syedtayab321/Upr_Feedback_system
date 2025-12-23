@@ -20,11 +20,24 @@ export const submitFeedback = async (req, res) => {
   }
 };
 
+export const getQuestionnaires = async (req, res) => {
+  try {
+    const questionnaires = await db.Questionnaire.findAll({
+      where: { portal: 'alumni' }
+    });
+    res.json(questionnaires);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};
+
 export const getFeedbacks = async (req, res) => {
   try {
     const { id: userId } = req.user;
     const feedbacks = await db.Feedback.findAll({
-      where: { userId, portal: 'alumni' },
+      where: { userId, portal: {
+         [Op.in]: ['student', 'alumni']
+      } },
       include: [
         { model: db.FeedbackResponse, include: [{ model: db.User, as: 'responder' }] },
         { model: db.User }

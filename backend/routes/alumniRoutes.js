@@ -7,7 +7,8 @@ import {
   getChats,
   sendMessage,
   getAlumniProfile,
-  updateAlumniProfile
+  updateAlumniProfile,
+  getQuestionnaires
 } from './../controllers/alumniController.js';
 
 const router = express.Router();
@@ -23,5 +24,6 @@ router.post('/chat', sendMessage);
 
 router.get('/profile', getAlumniProfile);
 router.put('/profile', updateAlumniProfile);
+router.get('/questionnaires', getQuestionnaires);
 
 export default router;

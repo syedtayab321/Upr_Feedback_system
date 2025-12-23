@@ -17,6 +17,15 @@ export const getSocket = () => {
   return socket;
 };
 
+export const submitFeedbackApi = async (feedbackData) => {
+  try {
+    const response = await api.post('/academic/feedback', feedbackData);
+    return response.data;
+  } catch (error) {
+    throw new Error(error.response?.data?.message || 'Failed to submit feedback');
+  }
+};
+
 // Feedback API
 export const fetchFeedbacksApi = async () => {
   try {
@@ -24,6 +33,16 @@ export const fetchFeedbacksApi = async () => {
     return response.data;
   } catch (error) {
     throw new Error(error.response?.data?.message || 'Failed to fetch feedbacks');
+  }
+};
+
+export const fetchQuestionnairesApi = async () => {
+  try {
+    const response = await api.get('/academic/questionnaires');
+    console.log(response.data);
+    return response.data;
+  } catch (error) {
+    throw new Error(error.response?.data?.message || 'Failed to fetch questionnaires');
   }
 };
 
@@ -50,7 +69,6 @@ export const fetchChatsApi = async () => {
 export const fetchChatUsersApi = async () => {
   try{
     const response = await api.get('/academic/chat-users');
-    console.log(response);
     return response.data;
   }
   catch(error){
@@ -79,7 +97,6 @@ export const sendMessageApi = async ({ senderId, receiverId, message }) => {
 export const fetchSentimentTrendsApi = async (params) => {
   try {
     const response = await api.get('/academic/sentiment-trends', { params });
-    console.log(response);
     return response.data;
   } catch (error) {
     throw new Error(error.response?.data?.message || 'Failed to fetch sentiment trends');

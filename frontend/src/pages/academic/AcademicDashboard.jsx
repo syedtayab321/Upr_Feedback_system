@@ -7,7 +7,8 @@ import LogoutModal from "./../../components/common/LogoutModal.jsx";
 import AcademicFeedbackList from "./../../components/academic/AcademicFeedbackList.jsx";
 import AcademicChatInterface from "./../../components/academic/AcadmicChatInterface.jsx";
 import SentimentTrends from "./../../components/academic/SentimentTrends.jsx";
-import { FaList, FaComment, FaChartBar, FaBars, FaSignOutAlt } from "react-icons/fa";
+import AcademicFeedbackForm from "./../../components/academic/AcademicFeedbackForm.jsx";
+import { FaList, FaComment,FaPaperPlane, FaChartBar, FaBars, FaSignOutAlt } from "react-icons/fa";
 import { logout } from "./../../redux/slices/authSlice";
 
 const AcademicDashboard = () => {
@@ -20,6 +21,7 @@ const AcademicDashboard = () => {
 
   const tabs = [
     { id: "feedback", label: "Feedback", icon: FaList, path: "/academic/feedback" },
+    { id: "Questioner", label: "Questioner Feedback", icon: FaPaperPlane, path: "/academic/feedback_questioner" },
     { id: "chat", label: "Chat", icon: FaComment, path: "/academic/chat" },
     { id: "sentiment", label: "Sentiment Trends", icon: FaChartBar, path: "/academic/sentiment" },
   ];
@@ -32,6 +34,8 @@ const AcademicDashboard = () => {
 
   const renderContent = () => {
     switch (activeTab) {
+      case "Questioner":
+        return <AcademicFeedbackForm />;
       case "feedback":
         return <AcademicFeedbackList />;
       case "chat":

@@ -1,16 +1,59 @@
 import  db  from './../models/index.js';
 import { Op } from 'sequelize';
+import  { analyzeSentiment } from './../utils/sentimentAnalyzer.js';
+
+export const submitFeedback = async (req, res) => {
+  try {
+    const { questionnaireId, content, portal = 'alumni' } = req.body;
+    const { id: userId } = req.user;
+    const { score, category } = await analyzeSentiment(content, 'vader');
+    const feedback = await db.Feedback.create({
+      userId,
+      questionnaireId,
+      content,
+      sentiment: category,
+      score,
+      portal
+    });
+    res.status(201).json(feedback);
+  } catch (err) {
+    res.status(400).json({ message: err.message });
+  }
+};
+
 
 export const getFeedbacks = async (req, res) => {
   try {
     const feedbacks = await db.Feedback.findAll({
-      where: { portal: 'student' },
+      where: {
+        portal: {
+          [Op.in]: ['student', 'academic']
+        }
+      },
       include: [
         { model: db.User },
-        { model: db.FeedbackResponse, include: [{ model: db.User, as: 'responder' }] }
-      ]
+        { 
+          model: db.FeedbackResponse,
+          include: [{ model: db.User, as: 'responder' }]
+        }
+      ],
+      order: [['createdAt', 'DESC']]
     });
+
     res.json(feedbacks);
+  } catch (err) {
+    console.error('Get feedbacks error:', err);
+    res.status(500).json({ message: err.message });
+  }
+};
+
+
+export const getQuestionnaires = async (req, res) => {
+  try {
+    const questionnaires = await db.Questionnaire.findAll({
+      where: { portal: 'academic' }
+    });
+    res.json(questionnaires);
   } catch (err) {
     res.status(500).json({ message: err.message });
   }

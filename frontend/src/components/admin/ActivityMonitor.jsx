@@ -230,13 +230,13 @@ const ActivityMonitor = () => {
           color="green"
           trend={12.5}
         />
-        <StatCard 
+        {/* <StatCard 
           title="Chat Messages" 
           value={chats.length} 
           icon={FaComments} 
           color="blue"
           trend={8.3}
-        />
+        /> */}
         <StatCard 
           title="Active Users" 
           value={new Set(activities.map(a => a.userId)).size} 
@@ -318,12 +318,12 @@ const ActivityMonitor = () => {
               Feedbacks
             </div>
           </Tab>
-          <Tab className="px-6 py-3 font-medium text-gray-600 hover:text-indigo-600 cursor-pointer border-b-2 border-transparent data-[selected]:border-indigo-600 data-[selected]:text-indigo-600">
+          {/* <Tab className="px-6 py-3 font-medium text-gray-600 hover:text-indigo-600 cursor-pointer border-b-2 border-transparent data-[selected]:border-indigo-600 data-[selected]:text-indigo-600">
             <div className="flex items-center">
               <FaComments className="mr-2" />
               Chats
             </div>
-          </Tab>
+          </Tab> */}
         </TabList>
 
         <TabPanel>

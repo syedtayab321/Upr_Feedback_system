@@ -9,4 +9,4 @@ pip install -r requirements.txt
 
 Step 3: Navigate to the code folder and run the application
 cd code
-uvicorn main:app --host 0.0.0.0 --port 8000
+uvicorn main:app --host 0.0.0.0 --port 8001

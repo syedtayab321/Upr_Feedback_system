@@ -34,26 +34,20 @@ const AcademicChatInterface = () => {
     }
   }, [chats, selectedUser]);
 
-  // Get ALL users from chats (including those not in chatUsers)
   const allChatParticipants = useMemo(() => {
     if (!chats || !Array.isArray(chats)) return [];
     
     const participants = new Map();
-    
-    // Add users from chatUsers first
     chatUsers.forEach(u => {
       if (u.id !== user?.id) {
         participants.set(u.id, u);
       }
     });
     
-    // Add users from chat history
     chats.forEach(chat => {
-      // Handle sender
       if (chat.sender && chat.sender.id !== user?.id) {
         participants.set(chat.sender.id, chat.sender);
       } else if (chat.senderId && chat.senderId !== user?.id) {
-        // If we only have senderId, create a minimal user object
         if (!participants.has(chat.senderId)) {
           participants.set(chat.senderId, {
             id: chat.senderId,
@@ -64,11 +58,9 @@ const AcademicChatInterface = () => {
         }
       }
       
-      // Handle receiver
       if (chat.receiver && chat.receiver.id !== user?.id) {
         participants.set(chat.receiver.id, chat.receiver);
       } else if (chat.receiverId && chat.receiverId !== user?.id) {
-        // If we only have receiverId, create a minimal user object
         if (!participants.has(chat.receiverId)) {
           participants.set(chat.receiverId, {
             id: chat.receiverId,
@@ -83,7 +75,6 @@ const AcademicChatInterface = () => {
     return Array.from(participants.values());
   }, [chats, chatUsers, user]);
 
-  // Auto-select first user
   useEffect(() => {
     if (!selectedUser && allChatParticipants.length > 0) {
       setSelectedUser(allChatParticipants[0]);
@@ -118,15 +109,10 @@ const AcademicChatInterface = () => {
     }
   };
 
-  // Filter chats for the selected user
   const filteredChats = useMemo(() => {
     if (!selectedUser || !user || !chats || !Array.isArray(chats)) {
       return [];
     }
-
-    console.log('=== FILTERING CHATS ===');
-    console.log('Selected User ID:', selectedUser.id);
-    console.log('Selected User:', selectedUser);
 
     return chats.filter(chat => {
       if (!chat) return false;
@@ -143,20 +129,15 @@ const AcademicChatInterface = () => {
     });
   }, [chats, selectedUser, user]);
 
-  console.log('Filtered Chats:', filteredChats);
-
-  // Sort chats by timestamp
   const sortedChats = [...filteredChats].sort((a, b) => {
     const dateA = new Date(a.createdAt || a.timestamp || Date.now());
     const dateB = new Date(b.createdAt || b.timestamp || Date.now());
     return dateA - dateB;
   });
 
-  // Get user's display info
   const getUserDisplayInfo = (userObj) => {
     if (!userObj) return { name: 'Unknown User', initial: '?', role: 'user' };
     
-    // Try to get name from different possible field names
     const firstName = userObj.firstName || userObj.name || '';
     const lastName = userObj.lastName || '';
     const name = `${firstName} ${lastName}`.trim() || 'Unknown User';
@@ -169,7 +150,6 @@ const AcademicChatInterface = () => {
     };
   };
 
-  // Get last message for a user
   const getLastMessage = (userId) => {
     if (!chats || !Array.isArray(chats)) return null;
     

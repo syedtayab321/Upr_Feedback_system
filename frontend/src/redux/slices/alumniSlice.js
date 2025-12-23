@@ -8,6 +8,17 @@ export const submitFeedback = createAsyncThunk(
   }
 );
 
+export const fetchQuestionnaires = createAsyncThunk(
+  'alumni/fetchQuestionnaires',
+  async (_, { rejectWithValue }) => {
+    try {
+      return await alumniApi.fetchQuestionnairesApi();
+    } catch (error) {
+      return rejectWithValue(error.message);
+    }
+  }
+);
+
 export const fetchFeedbacks = createAsyncThunk(
   'alumni/fetchFeedbacks',
   async () => {
@@ -68,14 +79,20 @@ const alumniSlice = createSlice({
   name: 'alumni',
   initialState: {
     feedbacks: [],
+    questionnaires: [],
     profile: null,
     events: [],
     chatUsers: [],
     chats: [],
     loading: false,
     error: null,
+    submitSuccess: false,
     operations: {
       feedback: {
+        loading: false,
+        error: null,
+      },
+       questionnaire: {
         loading: false,
         error: null,
       },
@@ -234,6 +251,20 @@ const alumniSlice = createSlice({
       .addCase(sendMessage.rejected, (state, action) => {
         state.operations.chat.loading = false;
         state.operations.chat.error = action.payload;
+      })
+
+       // Fetch Questionnaires
+      .addCase(fetchQuestionnaires.pending, (state) => {
+        state.operations.questionnaire.loading = true;
+        state.operations.questionnaire.error = null;
+      })
+      .addCase(fetchQuestionnaires.fulfilled, (state, action) => {
+        state.operations.questionnaire.loading = false;
+        state.questionnaires = action.payload;
+      })
+      .addCase(fetchQuestionnaires.rejected, (state, action) => {
+        state.operations.questionnaire.loading = false;
+        state.operations.questionnaire.error = action.payload;
       });
   }
 });
@@ -259,5 +290,9 @@ export const selectChatError = (state) => state.alumni.operations.chat.error;
 
 export const selectAlumniLoading = (state) => state.alumni.loading;
 export const selectAlumniError = (state) => state.alumni.error;
+
+export const selectQuestionnaires = (state) => state.alumni.questionnaires;
+export const selectQuestionnairesLoading = (state) => state.alumni.operations.questionnaire.loading;
+export const selectQuestionnairesError = (state) => state.alumni.operations.questionnaire.error;
 
 export default alumniSlice.reducer;

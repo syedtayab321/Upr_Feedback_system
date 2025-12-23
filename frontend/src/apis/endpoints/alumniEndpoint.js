@@ -5,6 +5,15 @@ export const submitFeedbackApi = async (feedbackData) => {
   return response.data;
 };
 
+export const fetchQuestionnairesApi = async () => {
+  try {
+    const response = await api.get('/alumni/questionnaires');
+    return response.data;
+  } catch (error) {
+    throw new Error(error.response?.data?.message || 'Failed to fetch questionnaires');
+  }
+};
+
 export const fetchFeedbacksApi = async () => {
   const response = await api.get('/alumni/feedback');
   return response.data;
