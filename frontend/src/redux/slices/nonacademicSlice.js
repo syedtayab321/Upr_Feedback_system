@@ -13,6 +13,29 @@ export const fetchFeedbacks = createAsyncThunk(
   }
 );
 
+export const submitFeedback = createAsyncThunk(
+  "nonAcademic/submitFeedback",
+  async (feedbackData, { rejectWithValue }) => {
+    try {
+      return await nonAcademicApi.submitFeedbackApi(feedbackData);
+    } catch (error) {
+      return rejectWithValue(error.message);
+    }
+  }
+);
+
+export const fetchQuestionnaires = createAsyncThunk(
+  "nonAcademic/fetchQuestionnaires",
+  async (_, { rejectWithValue }) => {
+    try {
+      console.log("Fetching questionnaires from API...");
+      return await nonAcademicApi.fetchQuestionnairesApi();
+    } catch (error) {
+      return rejectWithValue(error.message);
+    }
+  }
+);
+
 export const respondToFeedback = createAsyncThunk(
   "nonAcademic/respondToFeedback",
   async ({ feedbackId, response }, { rejectWithValue }) => {
@@ -64,10 +87,12 @@ const nonAcademicSlice = createSlice({
   name: "nonAcademic",
   initialState: {
     feedbacks: [],
+    questionnaires: [],
     chats: [],
     loading: false,
     error: null,
     socketConnected: false,
+    submitSuccess: false,
     operations: {
       feedback: {
         loading: false,
@@ -77,6 +102,7 @@ const nonAcademicSlice = createSlice({
         loading: false,
         error: null,
       },
+      questionnaire: { loading: false, error: null },
     },
   },
   reducers: {
@@ -96,6 +122,7 @@ const nonAcademicSlice = createSlice({
       state.chats = [];
       state.loading = false;
       state.error = null;
+      state.questionnaires = [];
       state.socketConnected = false;
       state.operations.feedback.loading = false;
       state.operations.feedback.error = null;
@@ -105,6 +132,34 @@ const nonAcademicSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder
+
+      // Submit Feedback
+      .addCase(submitFeedback.pending, (state) => {
+        state.operations.feedback.loading = true;
+        state.operations.feedback.error = null;
+      })
+      .addCase(submitFeedback.fulfilled, (state, action) => {
+        state.operations.feedback.loading = false;
+        state.feedbacks.push(action.payload);
+      })
+      .addCase(submitFeedback.rejected, (state, action) => {
+        state.operations.feedback.loading = false;
+        state.operations.feedback.error = action.payload;
+      })
+
+      // Fetch Questionnaires
+      .addCase(fetchQuestionnaires.pending, (state) => {
+        state.operations.questionnaire.loading = true;
+        state.operations.questionnaire.error = null;
+      })
+      .addCase(fetchQuestionnaires.fulfilled, (state, action) => {
+        state.operations.questionnaire.loading = false;
+        state.questionnaires = action.payload;
+      })
+      .addCase(fetchQuestionnaires.rejected, (state, action) => {
+        state.operations.questionnaire.loading = false;
+        state.operations.questionnaire.error = action.payload;
+      })
       // Fetch Feedbacks
       .addCase(fetchFeedbacks.pending, (state) => {
         state.operations.feedback.loading = true;
@@ -240,3 +295,8 @@ export const selectSocketConnected = (state) =>
 // General selectors
 export const selectNonAcademicLoading = (state) => state.nonAcademic.loading;
 export const selectNonAcademicError = (state) => state.nonAcademic.error;
+
+
+export const selectQuestionnaires = (state) => state.nonAcademic.questionnaires;
+export const selectQuestionnairesLoading = (state) => state.nonAcademic.operations.questionnaire.loading;
+export const selectQuestionnairesError = (state) => state.nonAcademic.operations.questionnaire.error;

@@ -95,14 +95,14 @@ const academicSlice = createSlice({
   name: "academic",
   initialState: {
     feedbacks: [],
-    questionnaires: [], // ✅ ADD THIS
+    questionnaires: [],
     chats: [],
     chatUsers: [],
     sentimentTrends: null,
     loading: false,
     error: null,
     socketConnected: false,
-    submitSuccess: false, // ✅ ADD THIS
+    submitSuccess: false,
     operations: {
       feedback: { loading: false, error: null },
       questionnaire: { loading: false, error: null },
@@ -130,7 +130,7 @@ const academicSlice = createSlice({
     resetAcademicState: (state) => {
       state.feedbacks = [];
       state.chats = [];
-      state.chatUsers = []; // Added
+      state.chatUsers = [];
       state.sentimentTrends = null;
       state.questionnaires = [];
       state.loading = false;

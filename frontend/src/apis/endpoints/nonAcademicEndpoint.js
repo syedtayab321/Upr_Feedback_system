@@ -17,6 +17,17 @@ export const getSocket = () => {
   return socket;
 };
 
+
+export const submitFeedbackApi = async (feedbackData) => {
+  try {
+    const response = await api.post('/non-academic/feedback', feedbackData);
+    return response.data;
+  } catch (error) {
+    throw new Error(error.response?.data?.message || 'Failed to submit feedback');
+  }
+};
+
+
 // Feedback API
 export const fetchFeedbacksApi = async () => {
   try {
@@ -26,6 +37,16 @@ export const fetchFeedbacksApi = async () => {
     throw new Error(error.response?.data?.message || 'Failed to fetch feedbacks');
   }
 };
+
+export const fetchQuestionnairesApi = async () => {
+  try {
+    const response = await api.get('/non-academic/questionnaires');
+    return response.data;
+  } catch (error) {
+    throw new Error(error.response?.data?.message || 'Failed to fetch questionnaires');
+  }
+};
+
 
 export const respondToFeedbackApi = async ({ feedbackId, response }) => {
   try {

@@ -6,6 +6,8 @@ import Sidebar from "./../../components/common/Sidebar.jsx";
 import LogoutModal from "./../../components/common/LogoutModal.jsx";
 import NonAcademicFeedbackList from "./../../components/nonacademic/NonAcademicFeedbackList.jsx";
 import NonAcademicChatInterface from "./../../components/nonacademic/NonAcadmicChatInterface.jsx";
+import NonAcademicFeedbackForm from "./../../components/nonacademic/NonAcademicFeedbackForm.jsx";
+import { FaPaperPlane } from "react-icons/fa";
 import { FaList, FaComment, FaBars, FaSignOutAlt } from "react-icons/fa";
 import { logout } from "./../../redux/slices/authSlice";
 
@@ -19,6 +21,7 @@ const NonAcademicDashboard = () => {
 
   const tabs = [
     { id: "feedback", label: "View Feedback", icon: FaList, path: "/non-academic/feedback" },
+     { id: "Questioner", label: "Questioner Feedback", icon: FaPaperPlane, path: "/non-academic/feedback_questioner" },
     { id: "chat", label: "Chat", icon: FaComment, path: "/non-academic/chat" },
   ];
 
@@ -30,6 +33,8 @@ const NonAcademicDashboard = () => {
 
   const renderContent = () => {
     switch (activeTab) {
+     case "Questioner":
+        return <NonAcademicFeedbackForm/>
       case "feedback":
         return <NonAcademicFeedbackList />;
       case "chat":
