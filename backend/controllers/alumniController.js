@@ -62,6 +62,7 @@ export const getChatUsers = async (req, res) => {
           { role: 'non_academic_staff' },
           { role: 'alumni' }
         ]
+
       },
       attributes: ['id', 'firstName', 'lastName', 'role', 'email'],
       order: [['firstName', 'ASC']]

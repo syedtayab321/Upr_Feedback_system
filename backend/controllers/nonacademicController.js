@@ -88,7 +88,7 @@ export const getChatUsers = async (req, res) => {
   try {
     const users = await db.User.findAll({
       where: {
-        role: { [Op.in]: ['academic_staff', 'non_academic_staff','student'] }
+        role: { [Op.in]: ['academic_staff', 'non_academic_staff','student','alumni'] }
       },
       attributes: ['id', 'firstName', 'lastName', 'role']
     });
